@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  api:
+    build: ./backend
+    environment:
+      - CONNECTION_STRING=postgres://user_gaiya:user_gaiya@db/gaiya_db
+    depends_on:
+      - db
+    networks:
+      - network-backend
+      - network-frontend
+
+  webapp:
+    build: ./frontend
+    environment:
+      - API_URL=http://api:3005/data
+    depends_on:
+      - api
+    ports:
+      - "3004:3004"
+    networks:
+      - network-frontend
+
+  db:
+    image: postgres:11.2-alpine
+    environment:
+      POSTGRES_USER: user_gaiya
+      POSTGRES_PASSWORD: user_gaiya
+      POSTGRES_DB: gaiya_db
+    volumes:
+      - ./init_sql_scripts/:/docker-entrypoint-initdb.d
+    networks:
+      - network-backend
+
+networks:
+  network-backend:
+  network-frontend:
